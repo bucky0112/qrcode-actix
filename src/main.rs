@@ -9,11 +9,15 @@ fn is_valid_color(color: &str) -> bool {
     re.is_match(color)
 }
 
+const MIN_DIMENSION: u32 = 100;
+const MAX_DIMENSION: u32 = 2000;
+
 #[derive(serde::Deserialize)]
 struct Info {
     url: String,
     foreground: Option<String>,
     background: Option<String>,
+    dimension: Option<u32>,
 }
 
 #[get("/generate_qr")]
@@ -51,9 +55,14 @@ async fn generate_svg(data: web::Json<Info>) -> HttpResponse {
         Err(_) => return HttpResponse::BadRequest().body("你輸入的字串無法處理"),
     };
 
+    let size = match &data.dimension {
+        Some(dimension) if *dimension >= MIN_DIMENSION && *dimension <= MAX_DIMENSION => *dimension,
+        _ => 200,
+    };
+
     let image = code
         .render()
-        .min_dimensions(200, 200)
+        .min_dimensions(size, size)
         .dark_color(svg::Color(fg_color_str))
         .light_color(svg::Color(bg_color_str))
         .build();
