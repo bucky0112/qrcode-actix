@@ -16,13 +16,17 @@ fn is_valid_color(color: &str) -> bool {
 
 #[get("/generate_qr")]
 async fn index(data: web::Query<Info>) -> HttpResponse {
-    let code_data = if let Some(url) = &data.url {
-        url.as_bytes().to_vec()
-    } else if let Some(phone_number) = &data.phone_number {
-        let formatted_number = format!("tel:{}", phone_number);
-        formatted_number.as_bytes().to_vec()
-    } else {
-        return HttpResponse::BadRequest().body("缺少有效數據");
+    let code_data = match data
+        .url
+        .as_ref()
+        .map(|url| url.as_bytes().to_vec())
+        .or_else(|| {
+            data.phone_number
+                .as_ref()
+                .map(|phone| format!("tel:{}", phone).as_bytes().to_vec())
+        }) {
+        Some(data) => data,
+        None => return HttpResponse::BadRequest().body("缺少有效數據"),
     };
 
     let code = match QrCode::new(code_data) {
@@ -53,13 +57,17 @@ async fn generate_svg(data: web::Json<Info>) -> HttpResponse {
         _ => "#FFFFFF",
     };
 
-    let code_data = if let Some(url) = &data.url {
-        url.as_bytes().to_vec()
-    } else if let Some(phone_number) = &data.phone_number {
-        let formatted_number = format!("tel:{}", phone_number);
-        formatted_number.as_bytes().to_vec()
-    } else {
-        return HttpResponse::BadRequest().body("缺少有效數據");
+    let code_data = match data
+        .url
+        .as_ref()
+        .map(|url| url.as_bytes().to_vec())
+        .or_else(|| {
+            data.phone_number
+                .as_ref()
+                .map(|phone| format!("tel:{}", phone).as_bytes().to_vec())
+        }) {
+        Some(data) => data,
+        None => return HttpResponse::BadRequest().body("缺少有效數據"),
     };
 
     let code = match QrCode::new(code_data) {
