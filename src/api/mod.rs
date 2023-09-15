@@ -16,7 +16,16 @@ fn is_valid_color(color: &str) -> bool {
 
 #[get("/generate_qr")]
 async fn index(data: web::Query<Info>) -> HttpResponse {
-    let code = match QrCode::new(data.url.as_bytes()) {
+    let code_data = if let Some(url) = &data.url {
+        url.as_bytes().to_vec()
+    } else if let Some(phone_number) = &data.phone_number {
+        let formatted_number = format!("tel:{}", phone_number);
+        formatted_number.as_bytes().to_vec()
+    } else {
+        return HttpResponse::BadRequest().body("缺少有效數據");
+    };
+
+    let code = match QrCode::new(code_data) {
         Ok(c) => c,
         Err(_) => return HttpResponse::BadRequest().body("你輸入的字串無法處理"),
     };
@@ -44,7 +53,16 @@ async fn generate_svg(data: web::Json<Info>) -> HttpResponse {
         _ => "#FFFFFF",
     };
 
-    let code = match QrCode::new(data.url.as_bytes()) {
+    let code_data = if let Some(url) = &data.url {
+        url.as_bytes().to_vec()
+    } else if let Some(phone_number) = &data.phone_number {
+        let formatted_number = format!("tel:{}", phone_number);
+        formatted_number.as_bytes().to_vec()
+    } else {
+        return HttpResponse::BadRequest().body("缺少有效數據");
+    };
+
+    let code = match QrCode::new(code_data) {
         Ok(c) => c,
         Err(_) => return HttpResponse::BadRequest().body("你輸入的字串無法處理"),
     };
