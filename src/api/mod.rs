@@ -21,7 +21,7 @@ async fn index(data: web::Query<Info>) -> HttpResponse {
         .as_ref()
         .map(|url| url.as_bytes().to_vec())
         .or_else(|| {
-            data.phone_number
+            data.phone
                 .as_ref()
                 .map(|phone| format!("tel:{}", phone).as_bytes().to_vec())
         }) {
@@ -62,7 +62,7 @@ async fn generate_svg(data: web::Json<Info>) -> HttpResponse {
         .as_ref()
         .map(|url| url.as_bytes().to_vec())
         .or_else(|| {
-            data.phone_number
+            data.phone
                 .as_ref()
                 .map(|phone| format!("tel:{}", phone).as_bytes().to_vec())
         }) {
