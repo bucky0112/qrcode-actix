@@ -8,6 +8,7 @@ use api::{generate_svg, index};
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| App::new().service(index).service(generate_svg))
         .bind("127.0.0.1:8080")?
+        // .bind("localhost:3000")?
         .run()
         .await
 }
