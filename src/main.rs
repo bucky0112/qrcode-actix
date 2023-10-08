@@ -7,8 +7,9 @@ use api::{generate_svg, index};
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| App::new().service(index).service(generate_svg))
-        .bind("127.0.0.1:8080")?
+        // .bind("127.0.0.1:8080")?
         // .bind("localhost:3000")?
+        .bind("0.0.0.0:8080")?
         .run()
         .await
 }
